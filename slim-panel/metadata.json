@@ -5,5 +5,7 @@
     "shell-version": [
         "3.26.1"
     ],
+    "settings-schema": "org.gnome.shell.extensions.slim-panel",
+    "gettext-domain": "gnome-shell-extension-slim-panel",
     "url": "https://github.com/heathbar/gnome-shell-extensions"
 }

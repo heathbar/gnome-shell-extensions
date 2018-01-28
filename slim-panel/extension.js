@@ -1,24 +1,39 @@
-
 const Main = imports.ui.main;
 const Tweener = imports.ui.tweener;
 
+const Me = imports.misc.extensionUtils.getCurrentExtension();
+const Convenience = Me.imports.convenience;
+const Keys = Me.imports.keys;
+const settings = Convenience.getSettings();
 const ANIMATION_SPEED = 0.45;
 
-const SlimPanel = function () {
-    this.init();
+const SlimPanel = function (settings) {
+    this.init(settings);
 };
 
 SlimPanel.prototype = {
-    init: function () {
+    init: function (settings) {
         this.monitor = Main.layoutManager.primaryMonitor;
         this.actor = Main.panel.actor;
         this.box = this.actor.get_parent();
         this.originalX = this.box.get_x();
         this.originalY = this.box.get_y();
         this.height = this.actor.get_height();
-        this.slimWidth = 700;
-        this.slimX = this.monitor.width - this.slimWidth - 100;
+        this.slimWidth = settings.get_int(Keys.SLIM_WIDTH);
+        this.slimX = this.monitor.width - this.slimWidth - settings.get_int(Keys.SLIM_MARGIN);
+        
+        // sign up for settings changes
+        settings.connect("changed::" + Keys.SLIM_WIDTH, (settings, key) => {
+            this.slimWidth = settings.get_int(key);
+            this.slimX = this.monitor.width - this.slimWidth - settings.get_int(Keys.SLIM_MARGIN);
+            this.shrink();
+        });
 
+        settings.connect("changed::" + Keys.SLIM_MARGIN, (settings, key) => {
+            this.slimX = this.monitor.width - this.slimWidth - settings.get_int(Keys.SLIM_MARGIN);
+            this.shrink();
+        });
+        
         // move the box up (offscreen), then translate down so struts are setup correctly
         this.box.set_position(this.originalX, this.originalY - this.height);
         Tweener.addTween(this.actor, { translation_y: this.height });
@@ -80,28 +95,43 @@ let expand_event = false;
 let shrink_event = false;
 
 function enable() {
-    Main.panel._rightBox.insert_child_at_index(button, 0);
-    
     // make the panel slim
-    sp = new SlimPanel();
+    sp = new SlimPanel(settings);
 
     // attach listeners to overview to grow/shrink accordingly
-    expand_event = Main.overview.connect('showing', sp.expand.bind(sp));
-    shrink_event = Main.overview.connect('hiding', sp.shrink.bind(sp));
+    if (settings.get_boolean(Keys.EXPAND_ON_OVERVIEW)) {
+        addOverviewListeners(sp);
+    }
+
+    // listen for changes to EXPAND_ON_OVERVIEW preference and respond accordingly
+    settings.connect("changed::" + Keys.EXPAND_ON_OVERVIEW, (settings, key) => {
+        if (settings.get_boolean(key)) {
+            addOverviewListeners(sp);
+        } else {
+            removeOverviewListeners();
+        }
+    });
 }
 
 function disable() {
-    Main.panel._rightBox.remove_child(button);
+    removeOverviewListeners();
 
-    // remove any listeners
+    // put all the pieces back; cleanup
+    sp.destroy();
+    sp = null;
+}
+
+
+function addOverviewListeners(panel) {
+    expand_event = Main.overview.connect('showing', panel.expand.bind(sp));
+    shrink_event = Main.overview.connect('hiding', panel.shrink.bind(sp));
+}
+
+function removeOverviewListeners() {
     if (expand_event) {
         Main.overview.disconnect(expand_event);
     }
     if (shrink_event) {
         Main.overview.disconnect(shrink_event);
     }
-
-    // put all the pieces back; cleanup
-    sp.destroy();
-    sp = null;
 }

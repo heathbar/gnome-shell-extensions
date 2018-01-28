@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema path="/org/gnome/shell/extensions/slim-panel/" id="org.gnome.shell.extensions.slim-panel">
+    <key type="i" name="slim-width">
+        <default>700</default>
+        <summary>Width when slim</summary>
+        <description>How wide the panel should be when it is slim.</description>
+    </key>
+    <key type="i" name="slim-margin">
+        <default>100</default>
+        <summary>Margin to the right of the panel</summary>
+        <description>How much space to leave between the right edge of the panel and the edge of the monitor.</description>
+    </key>
+    <key type="b" name="expand-on-overview">
+        <default>true</default>
+        <summary>Expand the panel when in overview</summary>
+        <description>Whether or not the panel should be expanded to the width of the monitor when in overview.</description>
+    </key>
+  </schema>
+</schemalist>
