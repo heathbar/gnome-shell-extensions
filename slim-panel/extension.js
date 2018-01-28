@@ -1,8 +1,6 @@
 
-const St = imports.gi.St;
 const Main = imports.ui.main;
 const Tweener = imports.ui.tweener;
-const Lang = imports.lang;
 
 const ANIMATION_SPEED = 0.45;
 
@@ -51,7 +49,11 @@ SlimPanel.prototype = {
         Tweener.addTween(this.box, {
             width: this.monitor.width,
             time: ANIMATION_SPEED,
-            onComplete: callback
+            onComplete: () => {
+                if (typeof callback === 'function') {
+                    callback();
+                }
+            }
         });
     },
 
@@ -71,45 +73,7 @@ SlimPanel.prototype = {
     }
 };
 
-
-let text, button;
-
-function _hideHello() {
-    Main.uiGroup.remove_actor(text);
-    text = null;
-}
-
-function _showHello(msg) {
-    text = new St.Label({ style_class: 'helloworld-label', text: "|" + "|" + msg});
-    Main.uiGroup.add_actor(text);
-
-    text.opacity = 255;
-
-    let monitor = Main.layoutManager.primaryMonitor;
-
-    text.set_position(monitor.x + Math.floor(monitor.width / 2 - text.width / 2),
-                      monitor.y + Math.floor(monitor.height / 2 - text.height / 2));
-
-    Tweener.addTween(text,
-                     { opacity: 0,
-                       time: 4,
-                       transition: 'easeOutQuad',
-                       onComplete: _hideHello });
-}
-
-function init() {
-    button = new St.Bin({ style_class: 'panel-button',
-                          reactive: true,
-                          can_focus: true,
-                          x_fill: true,
-                          y_fill: false,
-                          track_hover: true });
-    let icon = new St.Icon({ icon_name: 'system-run-symbolic',
-                             style_class: 'system-status-icon' });
-
-    button.set_child(icon);
-    button.connect('button-press-event', _showHello);
-}
+function init() {}
 
 let sp;
 let expand_event = false;
