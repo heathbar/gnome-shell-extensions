@@ -1,0 +1,9 @@
+{
+    "name": "Slim Panel",
+    "description": "Shrink the panel to provide more space for your apps",
+    "uuid": "slim-panel@heathpaddock.com",
+    "shell-version": [
+        "3.26.1"
+    ],
+    "url": "https://github.com/heathbar/gnome-shell-extensions"
+}
